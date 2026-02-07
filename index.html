@@ -3,368 +3,218 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guild Glory Bot - Pro Max</title>
+    <title>Guild Glory Bot Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #0b0e14; color: #e6edf3; font-family: 'Segoe UI', sans-serif; }
-        .card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
-        .input-box { background: #0d1117; border: 1px solid #30363d; color: white; padding: 12px; width: 100%; border-radius: 8px; margin-top: 8px; }
-        .btn-gold { background: linear-gradient(90deg, #ffd700, #ffa500); color: black; font-weight: bold; }
-        .btn-red { background: #f85149; color: white; font-weight: bold; }
-        .btn-whatsapp { background: #25d366; color: white; font-weight: bold; }
+        body { background-color: #0d1117; color: #c9d1d9; font-family: 'Segoe UI', sans-serif; }
+        .glass { background: #161b22; border: 1px solid #30363d; border-radius: 15px; }
+        .btn-red { background: linear-gradient(90deg, #f85149, #d73a49); color: white; font-weight: bold; width: 100%; padding: 12px; border-radius: 10px; transition: 0.3s; }
+        .input-box { background: #010409; border: 1px solid #30363d; color: white; padding: 12px; width: 100%; border-radius: 8px; outline: none; }
         .hidden { display: none; }
-        .loader { border: 4px solid #30363d; border-top: 4px solid #f85149; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .pulse-red { animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
     </style>
 </head>
 <body class="p-4 max-w-md mx-auto">
 
     <div id="authPage">
-        <h1 class="text-3xl font-black text-center text-red-500 mb-8 italic">GUILD BOT PRO</h1>
-        <div class="card">
-            <h2 id="authTitle" class="text-center font-bold text-gray-400 uppercase mb-2">Login</h2>
-            <input type="text" id="authUser" class="input-box" placeholder="Username">
-            <input type="password" id="authPass" class="input-box" placeholder="Password">
-            <button id="mainAuthBtn" onclick="handleAuth()" class="btn-red w-full py-3 rounded-lg mt-4 shadow-lg shadow-red-900/20 uppercase">Login</button>
-            <p class="text-center text-xs mt-4 text-gray-500">
-                <span id="authToggleText">Don't have an account?</span> 
-                <button onclick="toggleAuthMode()" id="authToggleBtn" class="text-red-400 font-bold underline ml-1">Sign Up</button>
-            </p>
+        <h1 class="text-3xl font-black text-center text-red-500 mb-8 italic uppercase">Guild Glory</h1>
+        <div class="glass p-6" id="loginBox">
+            <h2 class="text-xl font-bold mb-4">Login</h2>
+            <input type="text" id="loginUser" class="input-box mb-3" placeholder="Username">
+            <input type="password" id="loginPass" class="input-box mb-4" placeholder="Password">
+            <button onclick="handleLogin()" class="btn-red">LOGIN</button>
+            <p class="text-center text-xs mt-6">New User? <button onclick="toggleAuth(true)" class="text-red-400 font-bold underline">Sign Up</button></p>
+        </div>
+
+        <div class="glass p-6 hidden" id="signupBox">
+            <h2 class="text-xl font-bold mb-4">Create Account</h2>
+            <input type="text" id="regUser" class="input-box mb-3" placeholder="Choose Username">
+            <input type="password" id="regPass" class="input-box mb-4" placeholder="Create Password">
+            <button onclick="handleSignup()" class="btn-red bg-blue-600">REGISTER</button>
+            <button onclick="toggleAuth(false)" class="w-full mt-4 text-xs text-gray-500 underline">Back to Login</button>
         </div>
     </div>
 
     <div id="homePage" class="hidden">
         <div class="flex justify-between items-center mb-6">
             <div>
-                <h2 class="text-xl font-bold text-red-400">Hi, <span id="displayUser">User</span>!</h2>
-                <button onclick="logout()" class="text-[10px] text-gray-500 underline">Logout</button>
+                <h2 class="text-lg font-bold text-red-400 italic">Hi, <span id="userDisplayName">User</span>!</h2>
+                <button onclick="logout()" class="text-[10px] text-gray-500 underline">Logout Account</button>
             </div>
-            <div class="bg-yellow-500 text-black px-4 py-1 rounded-full font-bold shadow-lg">Coins: <span id="balance">0</span></div>
+            <div class="bg-yellow-500 text-black px-4 py-2 rounded-lg font-black shadow-lg">🪙 <span id="userBalance">0</span></div>
         </div>
 
-        <div class="card border-green-500/30 flex justify-between items-center py-3">
-            <div>
-                <p class="text-[10px] text-green-400 font-bold uppercase">Help & Support</p>
-                <p class="text-xs text-gray-400">Contact for any issues</p>
-            </div>
-            <button onclick="window.open('https://wa.me/919618301782?text=Hello%20Admin,%20I%20need%20help%20with%20Guild%20Bot', '_blank')" class="btn-whatsapp px-4 py-2 rounded-lg text-xs shadow-lg">WhatsApp Admin</button>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4 mb-4 text-center">
-            <div class="bg-black/40 border border-gray-800 p-2 rounded-lg">
-                <p class="text-[10px] text-gray-400 uppercase font-bold">Online Users</p>
-                <p id="onlineCount" class="text-xl font-black text-green-500">135</p>
-            </div>
-            <div class="bg-black/40 border border-gray-800 p-2 rounded-lg">
-                <p class="text-[10px] text-gray-400 uppercase font-bold">Active Bots</p>
-                <p id="activeBotsCount" class="text-xl font-black text-blue-500">42</p>
-            </div>
-        </div>
-
-        <div class="card border-green-500/20 bg-green-500/5">
-            <h3 class="text-[10px] font-black text-green-400 uppercase mb-2 flex items-center gap-2">
-                <span class="w-2 h-2 bg-green-500 rounded-full animate-ping"></span> Global Bot Live Activity
-            </h3>
-            <div id="globalHistory" class="text-[10px] space-y-2 max-h-24 overflow-hidden">
-                <p class="text-gray-500 italic">Waiting for new activity...</p>
-            </div>
-        </div>
-
-        <div id="runningStatus" class="card border-red-500 bg-red-950/20 hidden">
-            <div class="flex items-center justify-between">
-                <h3 class="text-red-500 font-black text-sm uppercase flex items-center gap-2">
-                    <span class="w-2 h-2 bg-red-500 rounded-full pulse-red"></span> <span id="runBotLabel">2</span> Bots Running...
-                </h3>
-                <span id="runTime" class="text-[10px] text-gray-400 font-mono">00:00:00</span>
-            </div>
-            <div class="mt-2 text-[11px]">
-                <p>Guild ID: <span id="runGuild" class="text-white font-bold">---</span></p>
-                <p class="text-green-400 animate-pulse italic">Injecting Glory...</p>
-            </div>
-            <hr class="border-gray-800 my-3">
-            <button onclick="stopBotProcess()" class="w-full bg-red-600 hover:bg-red-700 py-2 rounded text-[10px] font-black uppercase tracking-tighter">Stop Bot Forever</button>
-        </div>
-
-        <div class="card border-blue-500/30">
-            <h3 class="font-bold text-blue-400 mb-3 text-sm flex items-center gap-2">🎁 Free Rewards (Claim 10 Coins)</h3>
-            <div class="space-y-3">
-                <div class="bg-black/30 p-2 rounded-lg border border-gray-800">
-                    <button onclick="window.open('https://youtube.com/@bhaktinaadam-h2b?si=JR0nHKb_QYoy_JYV', '_blank')" class="w-full bg-red-600 py-1.5 rounded text-[10px] font-bold mb-2">SUBSCRIBE YOUTUBE</button>
-                    <input type="file" id="ytFile" class="text-[9px] w-full text-gray-400 mb-1">
-                    <button onclick="claimReward('ytFile', 'YouTube Reward')" class="w-full bg-gray-700 py-1 rounded text-[9px] font-bold">CLAIM 10 COINS</button>
-                </div>
-                <div class="bg-black/30 p-2 rounded-lg border border-gray-800">
-                    <button onclick="window.open('https://www.instagram.com/mani_king_1432_?igsh=dmkwdjR6YmY0a2g3', '_blank')" class="w-full bg-pink-600 py-1.5 rounded text-[10px] font-bold mb-2">FOLLOW INSTAGRAM</button>
-                    <input type="file" id="igFile" class="text-[9px] w-full text-gray-400 mb-1">
-                    <button onclick="claimReward('igFile', 'Instagram Reward')" class="w-full bg-gray-700 py-1 rounded text-[9px] font-bold">CLAIM 10 COINS</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="card border-yellow-500/30">
-            <h3 class="font-bold text-yellow-500 mb-2">💰 Add Coins (Paid)</h3>
-            
-            <div class="bg-white p-2 rounded-lg w-40 mx-auto mb-4">
-                <img src="https://i.ibb.co/xVdKrwf/Screenshot-2025-05-24-15-58-20-41-403564-964646-464.jpg" alt="QR Code" class="w-full">
-            </div>
-
-            <a href="upi://pay?pa=9618301782@ybl&pn=Admin&cu=INR" class="block text-center bg-blue-600 text-white py-2 rounded-lg text-xs font-bold mb-3 uppercase">Pay Directly via UPI App</a>
-            
-            <p class="text-xs text-gray-400 mb-2 text-center bg-gray-900 p-2 rounded font-mono">UPI: 9618301782@ybl</p>
-            
-            <select id="coinsPlan" class="input-box bg-gray-800">
-                <option value="100">₹10 - 100 Coins</option>
-                <option value="200">₹20 - 200 Coins</option>
-                <option value="400">₹40 - 400 Coins</option>
-                <option value="500">₹50 - 500 Coins</option>
+        <div class="glass p-5 mb-6">
+            <h3 class="text-xs font-bold text-gray-400 uppercase mb-4">🚀 Bot Control</h3>
+            <input type="number" id="guildId" class="input-box mb-3" placeholder="Enter Guild ID">
+            <select id="server" class="input-box mb-3">
+                <option>India 🇮🇳</option><option>Pakistan 🇵🇰</option><option>Bangladesh 🇧🇩</option><option>Singapore 🇸🇬</option>
+                <option>Brazil 🇧🇷</option><option>Indonesia 🇮🇩</option><option>Vietnam 🇻🇳</option><option>Europe 🇪🇺</option>
+                <option>Middle East 🌍</option><option>Thailand 🇹🇭</option>
             </select>
-            <label class="text-[10px] text-gray-500 mt-2 block uppercase font-bold">Upload Payment Screenshot:</label>
-            <input type="file" id="payScreen" class="text-xs mt-1 block w-full text-gray-500">
-            <button onclick="requestCoins()" class="btn-gold w-full py-2 rounded-lg mt-3">Verify & Add Coins</button>
-        </div>
-
-        <button onclick="showPage('botPage')" class="btn-red w-full py-4 rounded-xl text-lg font-black mb-4 uppercase tracking-widest">Start Guild Bot</button>
-        
-        <h3 class="font-bold mb-2 text-sm text-gray-400">Your Recent Logs</h3>
-        <div id="history" class="text-[11px] text-gray-500 space-y-1 bg-black/40 p-3 rounded-lg border border-gray-800 max-h-32 overflow-y-auto">No transactions.</div>
-
-        <button onclick="adminAuth()" class="w-full mt-10 opacity-5 text-[10px]">ADMIN PANEL</button>
-    </div>
-
-    <div id="botPage" class="hidden text-center">
-        <h2 class="text-2xl font-bold text-red-500 mb-4 uppercase font-black">Bot Config</h2>
-        <div class="card text-left">
-            <label class="text-xs text-gray-400 font-bold uppercase">GUILD ID</label>
-            <input type="text" id="guildId" class="input-box" placeholder="Ex: 3021295212">
-            
-            <label class="text-xs text-gray-400 mt-4 block font-bold uppercase">GLORY PLAN</label>
-            <select id="gloryPlan" class="input-box bg-gray-800">
+            <select id="gloryPlan" class="input-box mb-4">
                 <option value="50">15,000 Glory (50 Coins)</option>
                 <option value="100">30,000 Glory (100 Coins)</option>
-                <option value="200">60,000 Glory (200 Coins)</option>
-                <option value="400">1,00,000 Glory (400 Coins)</option>
+                <option value="150">45,000 Glory (150 Coins)</option>
+                <option value="500">100,000 Glory (500 Coins)</option>
             </select>
-
-            <label class="text-xs text-gray-400 mt-4 block font-bold uppercase">BOT INTENSITY (Select Bots)</label>
-            <select id="bots" class="input-box bg-gray-800">
-                <option value="2">2 Bots (Standard)</option>
-                <option value="3">3 Bots (Fast)</option>
-                <option value="4">4 Bots (Super Fast)</option>
-            </select>
-
-            <button onclick="runBotProcess()" class="btn-red w-full py-3 rounded-lg mt-6 uppercase font-bold shadow-lg">Run Bot Now</button>
-            <button onclick="showPage('homePage')" class="w-full mt-4 text-gray-500">← Back</button>
+            <div id="botStatus" class="hidden text-center text-xs text-yellow-500 mb-3 animate-pulse">Bot is processing your order...⚡</div>
+            <button id="runBtn" onclick="runBot()" class="btn-red italic">RUN BOT NOW</button>
+            <button id="stopBtn" onclick="stopBot()" class="hidden w-full bg-gray-700 py-3 rounded-lg font-bold">STOP BOT</button>
+            <p id="botNotice" class="hidden text-[10px] text-center text-red-500 mt-2 italic">⚠️ Order active. Once stopped, you cannot run this order again.</p>
         </div>
-        <div id="loading" class="hidden">
-            <div class="loader"></div>
-            <p id="loadText" class="text-yellow-500 font-bold animate-pulse text-xs uppercase text-center">Connecting to Server...</p>
+
+        <div class="glass p-5 mb-6">
+            <h3 class="text-xs font-bold text-yellow-500 uppercase mb-4">💰 Buy Coins</h3>
+            <div class="grid grid-cols-2 gap-2 mb-4">
+                <button onclick="payRedirect(10)" class="glass p-2 text-[10px] hover:bg-white/5">₹10 (100 C)</button>
+                <button onclick="payRedirect(20)" class="glass p-2 text-[10px] hover:bg-white/5">₹20 (200 C)</button>
+                <button onclick="payRedirect(50)" class="glass p-2 text-[10px] hover:bg-white/5">₹50 (500 C)</button>
+                <button onclick="payRedirect(100)" class="glass p-2 text-[10px] hover:bg-white/5">₹100 (1000 C)</button>
+            </div>
+            <p class="text-[10px] text-gray-500 mb-2">After PhonePe payment, upload screenshot:</p>
+            <input type="file" id="payProof" class="text-[10px] mb-3">
+            <button onclick="submitAdminRequest('Payment')" class="w-full bg-yellow-600 text-black py-2 rounded-lg font-bold text-xs uppercase">Submit to Admin</button>
+        </div>
+
+        <div class="glass p-5 mb-6">
+            <h3 class="text-xs font-bold text-blue-400 uppercase mb-4">🎁 Free Rewards</h3>
+            <div class="space-y-2 mb-4">
+                <div class="flex justify-between items-center text-xs bg-black p-2 rounded">
+                    <span>Subscribe YouTube (+10C)</span>
+                    <a href="https://youtube.com/@bhaktinaadam-h2b" target="_blank" class="text-red-500 underline font-bold">Open</a>
+                </div>
+                <div class="flex justify-between items-center text-xs bg-black p-2 rounded">
+                    <span>Follow Instagram (+10C)</span>
+                    <a href="https://www.instagram.com/mani_king_1432_" target="_blank" class="text-pink-500 underline font-bold">Open</a>
+                </div>
+            </div>
+            <input type="file" id="rewardProof" class="text-[10px] mb-2">
+            <button onclick="submitAdminRequest('Reward')" class="w-full bg-blue-600 py-2 rounded-lg font-bold text-xs">CLAIM REWARD</button>
+        </div>
+
+        <div class="text-center space-y-4">
+            <p class="text-[10px] text-gray-500 uppercase">Users Active: <span class="text-white font-bold">1,248</span></p>
+            <a href="https://wa.me/919618301782" class="text-green-500 text-xs font-bold italic underline">Contact WhatsApp: 9618301782</a>
         </div>
     </div>
 
     <div id="adminPage" class="hidden">
-        <h2 class="text-2xl font-bold text-yellow-500 mb-4 text-center border-b border-gray-800 pb-2 uppercase italic">Admin Requests</h2>
-        <div id="adminList" class="space-y-4 px-2"></div>
-        <button onclick="showPage('homePage')" class="btn-red w-full py-2 rounded-lg mt-8 uppercase font-bold text-xs">Close</button>
+        <h2 class="text-2xl font-black text-yellow-500 mb-6 uppercase">Admin Panel</h2>
+        <div id="requestList" class="space-y-4"></div>
+        <button onclick="location.reload()" class="w-full mt-10 text-xs text-gray-500 underline">Exit Admin</button>
     </div>
 
     <script>
-        let currentUser = null;
-        let isSignupMode = false;
-        let pendingRequests = [];
-        let botInterval = null;
-        let botSeconds = 0;
+        // Database logic
+        const getDB = () => JSON.parse(localStorage.getItem('guildUsers')) || {};
+        const saveDB = (db) => localStorage.setItem('guildUsers', JSON.stringify(db));
+        const getReqs = () => JSON.parse(localStorage.getItem('adminReqs')) || [];
+        const saveReqs = (r) => localStorage.setItem('adminReqs', JSON.stringify(r));
 
-        const fakeNames = ["Rahul_FF", "DarkLord", "KingMani", "Suriya_77", "ProPlayer", "BotMaster", "Legend_FF"];
-        
-        function addGlobalActivity(user, gid) {
-            const list = document.getElementById('globalHistory');
-            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            const item = document.createElement('p');
-            item.className = "border-b border-gray-800 pb-1 flex justify-between animate-slide-in";
-            item.innerHTML = `<span><b class="text-blue-400">${user}</b> started bot for ID: <b class="text-yellow-500">${gid}</b></span> <span class="text-gray-600">${time}</span>`;
-            
-            if(list.innerText.includes("Waiting")) list.innerHTML = "";
-            list.prepend(item);
-            if(list.children.length > 4) list.removeChild(list.lastChild);
+        let currentSession = localStorage.getItem('userSession');
+
+        window.onload = () => { if(currentSession) showHome(currentSession); };
+
+        function toggleAuth(isSignup) {
+            document.getElementById('loginBox').classList.toggle('hidden', isSignup);
+            document.getElementById('signupBox').classList.toggle('hidden', !isSignup);
         }
 
-        function handleAuth() {
-            const user = document.getElementById('authUser').value.trim();
-            const pass = document.getElementById('authPass').value.trim();
-            if (!user || !pass) return alert("Fill all fields!");
-            let users = JSON.parse(localStorage.getItem('botUsers')) || {};
+        function handleSignup() {
+            const u = document.getElementById('regUser').value.trim();
+            const p = document.getElementById('regPass').value.trim();
+            if(!u || !p) return alert("Fill details!");
+            let db = getDB();
+            if(db[u]) return alert("Username taken!");
+            db[u] = { pass: p, balance: 0 };
+            saveDB(db);
+            alert("Registered! Now login.");
+            toggleAuth(false);
+        }
 
-            if (isSignupMode) {
-                if (users[user]) return alert("Username already exists!");
-                users[user] = { password: pass, balance: 0, logs: [], isRunning: false, activeGuild: "", runtime: 0, botCount: 2 };
-                localStorage.setItem('botUsers', JSON.stringify(users));
-                alert("Signup Successful! Please Login.");
-                toggleAuthMode();
-            } else {
-                if (users[user] && users[user].password === pass) {
-                    currentUser = user;
-                    loadUserData();
-                    showPage('homePage');
-                } else {
-                    alert("Invalid Username or Password!");
-                }
+        function handleLogin() {
+            const u = document.getElementById('loginUser').value.trim();
+            const p = document.getElementById('loginPass').value.trim();
+            let db = getDB();
+            if(db[u] && db[u].pass === p) {
+                localStorage.setItem('userSession', u);
+                showHome(u);
+            } else alert("Invalid credentials!");
+        }
+
+        function showHome(u) {
+            currentSession = u;
+            const db = getDB();
+            document.getElementById('userDisplayName').innerText = u;
+            document.getElementById('userBalance').innerText = db[u].balance;
+            document.getElementById('authPage').classList.add('hidden');
+            document.getElementById('homePage').classList.remove('hidden');
+        }
+
+        function payRedirect(amt) {
+            window.location.href = `upi://pay?pa=9618301782@fam&pn=Mani&am=${amt}&cu=INR`;
+        }
+
+        function submitAdminRequest(type) {
+            let r = getReqs();
+            r.push({ user: currentSession, type: type, status: 'pending', id: Date.now() });
+            saveReqs(r);
+            alert("Request sent to Admin Mani!");
+        }
+
+        function runBot() {
+            const plan = parseInt(document.getElementById('gloryPlan').value);
+            let db = getDB();
+            if(db[currentSession].balance < plan) return alert("Low Coins!");
+            db[currentSession].balance -= plan;
+            saveDB(db);
+            document.getElementById('userBalance').innerText = db[currentSession].balance;
+            document.getElementById('runBtn').classList.add('hidden');
+            document.getElementById('stopBtn').classList.remove('hidden');
+            document.getElementById('botStatus').classList.remove('hidden');
+            document.getElementById('botNotice').classList.remove('hidden');
+        }
+
+        function stopBot() {
+            document.getElementById('stopBtn').classList.add('hidden');
+            document.getElementById('botStatus').innerText = "Bot Stopped. Success! ✅";
+            document.getElementById('botStatus').classList.replace('text-yellow-500', 'text-green-500');
+        }
+
+        // Secret Admin Entry (Mani Password Protected)
+        window.ondblclick = () => {
+            const p = prompt("Enter Admin Password:");
+            if(p === "mani147369000") {
+                document.getElementById('homePage').classList.add('hidden');
+                document.getElementById('adminPage').classList.remove('hidden');
+                renderAdmin();
             }
-        }
-
-        function loadUserData() {
-            let users = JSON.parse(localStorage.getItem('botUsers'));
-            let data = users[currentUser];
-            document.getElementById('displayUser').innerText = currentUser;
-            document.getElementById('balance').innerText = data.balance;
-            document.getElementById('history').innerHTML = data.logs.length ? data.logs.map(l => `<p class="border-b border-gray-800 pb-1 py-1">• ${l}</p>`).join('') : "No transactions.";
-            
-            if(data.isRunning) {
-                botSeconds = data.runtime || 0;
-                document.getElementById('runBotLabel').innerText = data.botCount || 2;
-                startLiveStatusUI(data.activeGuild, true);
-            }
-        }
-
-        function toggleAuthMode() {
-            isSignupMode = !isSignupMode;
-            document.getElementById('authTitle').innerText = isSignupMode ? "Sign Up" : "Login";
-            document.getElementById('mainAuthBtn').innerText = isSignupMode ? "SIGN UP" : "LOGIN";
-            document.getElementById('authToggleText').innerText = isSignupMode ? "Already have an account?" : "Don't have an account?";
-            document.getElementById('authToggleBtn').innerText = isSignupMode ? "Login" : "Sign Up";
-        }
-
-        function updateUserData() {
-            let users = JSON.parse(localStorage.getItem('botUsers'));
-            let isRunning = !document.getElementById('runningStatus').classList.contains('hidden');
-            users[currentUser].balance = parseInt(document.getElementById('balance').innerText);
-            users[currentUser].logs = Array.from(document.getElementById('history').querySelectorAll('p')).map(p => p.innerText.replace('• ', ''));
-            users[currentUser].isRunning = isRunning;
-            users[currentUser].activeGuild = document.getElementById('runGuild').innerText;
-            users[currentUser].runtime = botSeconds;
-            users[currentUser].botCount = document.getElementById('runBotLabel').innerText;
-            localStorage.setItem('botUsers', JSON.stringify(users));
-        }
-
-        function logout() {
-            if(botInterval) clearInterval(botInterval);
-            currentUser = null;
-            showPage('authPage');
-        }
-
-        function showPage(id) {
-            ['authPage', 'homePage', 'botPage', 'adminPage'].forEach(p => document.getElementById(p).classList.add('hidden'));
-            document.getElementById(id).classList.remove('hidden');
-            if(id === 'adminPage') renderAdmin();
-        }
-
-        function claimReward(fileId, rewardType) {
-            if(!document.getElementById(fileId).value) return alert("Upload screenshot!");
-            pendingRequests.push({ id: Date.now(), user: currentUser, amount: 10, type: rewardType });
-            alert("Sent to Admin!");
-        }
-
-        function requestCoins() {
-            if(!document.getElementById('payScreen').value) return alert("Upload screenshot!");
-            pendingRequests.push({ id: Date.now(), user: currentUser, amount: parseInt(document.getElementById('coinsPlan').value), type: 'Purchase' });
-            alert("Sent to Admin!");
-        }
-
-        function runBotProcess() {
-            const gid = document.getElementById('guildId').value;
-            const cost = parseInt(document.getElementById('gloryPlan').value);
-            const botCount = document.getElementById('bots').value; // Get selected bots
-            const bal = parseInt(document.getElementById('balance').innerText);
-            
-            if(!gid) return alert("Enter Guild ID!");
-            if(bal < cost) return alert("Low Coins!");
-
-            document.getElementById('loading').classList.remove('hidden');
-            document.getElementById('loadText').innerText = `Injecting ${botCount} Bots...`;
-
-            setTimeout(() => {
-                document.getElementById('loading').classList.add('hidden');
-                document.getElementById('balance').innerText = bal - cost;
-                botSeconds = 0;
-                document.getElementById('runBotLabel').innerText = botCount;
-                startLiveStatusUI(gid);
-                addGlobalActivity(currentUser, gid);
-                updateUserData();
-                showPage('homePage');
-                alert(`${botCount} Bots Started Successfully!`);
-            }, 3000);
-        }
-
-        function startLiveStatusUI(gid, isResuming = false) {
-            document.getElementById('runningStatus').classList.remove('hidden');
-            document.getElementById('runGuild').innerText = gid;
-            
-            if(botInterval) clearInterval(botInterval);
-            botInterval = setInterval(() => {
-                botSeconds++;
-                let hrs = Math.floor(botSeconds / 3600).toString().padStart(2, '0');
-                let mins = Math.floor((botSeconds % 3600) / 60).toString().padStart(2, '0');
-                let s = (botSeconds % 60).toString().padStart(2, '0');
-                document.getElementById('runTime').innerText = `${hrs}:${mins}:${s}`;
-                if(botSeconds % 10 === 0) updateUserData();
-            }, 1000);
-        }
-
-        function stopBotProcess() {
-            if(confirm("Are you sure?")) {
-                clearInterval(botInterval);
-                botInterval = null;
-                botSeconds = 0;
-                document.getElementById('runningStatus').classList.add('hidden');
-                
-                let hist = document.getElementById('history');
-                hist.innerHTML = `<p class="border-b border-gray-800 pb-1 py-1 text-red-500">• Stopped ${document.getElementById('runBotLabel').innerText} Bots on ID: ${document.getElementById('runGuild').innerText}</p>` + (hist.innerText.includes("No transactions") ? "" : hist.innerHTML);
-                
-                updateUserData();
-            }
-        }
+        };
 
         function renderAdmin() {
-            const list = document.getElementById('adminList');
-            list.innerHTML = pendingRequests.length ? pendingRequests.map(req => `
-                <div class="card flex justify-between items-center border-l-4 border-yellow-500 p-3 bg-black/40 text-[10px]">
-                    <div><p class="font-bold">${req.user}</p><p>${req.type}: +${req.amount} Coins</p></div>
-                    <button onclick="approveRequest(${req.id})" class="bg-green-600 px-3 py-1 rounded font-bold">OK</button>
-                </div>
-            `).join('') : "<p class='text-center text-gray-500 text-xs py-10'>No requests.</p>";
+            const list = document.getElementById('requestList');
+            list.innerHTML = '';
+            getReqs().forEach(req => {
+                list.innerHTML += `<div class="glass p-4 text-xs flex justify-between items-center">
+                    <div>User: ${req.user}<br>Type: ${req.type}</div>
+                    <button onclick="approveReq(${req.id})" class="bg-green-600 px-3 py-1 rounded">Approve</button>
+                </div>`;
+            });
         }
 
-        function approveRequest(id) {
-            const index = pendingRequests.findIndex(r => r.id === id);
-            if(index > -1) {
-                let req = pendingRequests[index];
-                let users = JSON.parse(localStorage.getItem('botUsers'));
-                if(users[req.user]) {
-                    users[req.user].balance += req.amount;
-                    users[req.user].logs.unshift(`Verified: +${req.amount} Coins`);
-                    localStorage.setItem('botUsers', JSON.stringify(users));
-                }
-                pendingRequests.splice(index, 1);
-                renderAdmin();
-                if(currentUser === req.user) loadUserData();
-            }
+        function approveReq(id) {
+            let reqs = getReqs();
+            const req = reqs.find(r => r.id === id);
+            let db = getDB();
+            db[req.user].balance += 100; // Giving 100 for example
+            saveDB(db);
+            saveReqs(reqs.filter(r => r.id !== id));
+            renderAdmin();
+            alert("Approved!");
         }
 
-        function adminAuth() {
-            if(prompt("Admin Password:") === "mani147369000") showPage('adminPage');
-            else alert("Wrong!");
-        }
-
-        setInterval(() => {
-            document.getElementById('onlineCount').innerText = Math.floor(Math.random() * (180 - 130) + 130);
-            document.getElementById('activeBotsCount').innerText = Math.floor(Math.random() * (60 - 30) + 30);
-            if(Math.random() > 0.8) {
-                const randomUser = fakeNames[Math.floor(Math.random() * fakeNames.length)];
-                const randomGid = Math.floor(1000000000 + Math.random() * 9000000000);
-                addGlobalActivity(randomUser, randomGid);
-            }
-        }, 3000);
+        function logout() { localStorage.removeItem('userSession'); location.reload(); }
     </script>
 </body>
-</html>
+                                                                                                                            </html>
+                                                                                                                            
